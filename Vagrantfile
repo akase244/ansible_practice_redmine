@@ -23,6 +23,11 @@ Vagrant.configure(2) do |config|
       wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
       sudo yum localinstall -y epel-release-6-8.noarch.rpm
       sudo yum install -y ansible
+      mv /etc/ansible/hosts /etc/ansible/hosts.orig
+      cat <<EOF > /etc/ansible/hosts
+[redmine]
+192.168.33.12
+EOF
     SHELL
   end
 
