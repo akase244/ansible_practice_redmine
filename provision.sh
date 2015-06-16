@@ -51,27 +51,22 @@ cat <<EOF > playbook.yml
       with_items:
         - "@Development Tools"
     
-    # - name: download libyaml
-      # get_url:
-        # url: http://dl.fedoraproject.org/pub/epel/5/x86_64/libyaml-0.1.2-8.el5.x86_64.rpm
-        # dest: ~/libyaml-0.1.2-8.el5.x86_64.rpm
-
-    # - name: download libyaml-devel
-      # get_url:
-        # url: http://dl.fedoraproject.org/pub/epel/5/x86_64/libyaml-devel-0.1.2-8.el5.x86_64.rpm
-        # dest: ~/libyaml-devel-0.1.2-8.el5.x86_64.rpm
-
-    # - name: install yaml libraries
-      # command: "sudo yum localinstall -y --nogpgcheck libyaml-0.1.2-8.el5.x86_64.rpm libyaml-devel-0.1.2-8.el5.x86_64.rpm"
+    - name: download yaml libraries
+      get_url:
+        url: "http://dl.fedoraproject.org/pub/epel/5/x86_64/{{ item }}"
+        dest: "/home/vagrant/{{ item }}"
+      with_items:
+        - libyaml-0.1.2-8.el5.x86_64.rpm
+        - libyaml-devel-0.1.2-8.el5.x86_64.rpm
 
     - name: install yaml libraries
       yum:
-        name: "{{ item }}"
-        disable_gpg_check: yes 
+        name: "/home/vagrant/{{ item }}"
+        disable_gpg_check: yes
         state: present
       with_items:
-        - http://dl.fedoraproject.org/pub/epel/5/x86_64/libyaml-0.1.2-8.el5.x86_64.rpm
-        - http://dl.fedoraproject.org/pub/epel/5/x86_64/libyaml-devel-0.1.2-8.el5.x86_64.rpm
+        - libyaml-0.1.2-8.el5.x86_64.rpm
+        - libyaml-devel-0.1.2-8.el5.x86_64.rpm
 
     - name: install MySQL
       yum:
