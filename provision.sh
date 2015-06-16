@@ -26,12 +26,22 @@ cat <<EOF > hosts
 192.168.33.11
 EOF
 
+# configure MySQL
+cat <<EOF > my.cnf.j2
+[client]
+user = root
+password = {{mysql_root_password}}
+EOF
+
+# create ansible playbook
 cat <<EOF > playbook.yml
 - hosts: provision_dest
   sudo: yes
   vars: 
     mysql_root_password: mysqlpass
-    mysql_db_password : redmine
+    mysql_db_name: redmine
+    mysql_db_user: redmine
+    mysql_db_password: enimder
   tasks:
     - name: install MySQL
       yum:
@@ -53,17 +63,25 @@ cat <<EOF > playbook.yml
         name: root
         host: localhost
         password: "{{ mysql_root_password }}"
+
+    - name: copy my.cnf
+      template: 
+        src: my.cnf.j2
+        dest: /root/.my.cnf
+        owner: root
+        mode: 0600
     
     - name: create database
       mysql_db:
-        name: redmine
+        name: "{{ mysql_db_name }}"
+        encoding: utf8
         state: present
     
     - name: grant database
       mysql_user:
-        name: redmine
+        name: "{{ mysql_db_user }}"
         password: "{{ mysql_db_password }}"
-        priv: "redmine.*:ALL"
+        priv: "{{ mysql_db_name }}.*:ALL"
         host: localhost
         state: present
 EOF
