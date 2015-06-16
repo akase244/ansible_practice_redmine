@@ -27,64 +27,10 @@ Vagrant.configure(2) do |config|
     node.vm.box = "chef/centos-6.5"
     node.vm.network :forwarded_port, guest: 22, host: 2001, id: "ssh"
     node.vm.network :private_network, ip: "192.168.33.12"
-    node.vm.provision "shell", inline: <<-SHELL
-      sudo rpm --import http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-6
-      wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-      sudo yum localinstall -y epel-release-6-8.noarch.rpm
-      sudo yum install -y ansible
-      #sudo cp /etc/ansible/hosts /etc/ansible/hosts.backup
-      sudo cat <<EOF > .ansible.cfg
-[default]
-host_key_checking = False
-EOF
-      sudo cat <<EOF > hosts
-[provision_dest]
-192.168.33.11
-EOF
-      cat <<EOF > playbook.yml
----
-- hosts: provision_dest
-  sudo: yes
-  vars: 
-    mysql_root_password: mysqlpass
-    mysql_db_password : redmine
-  tasks:
-    - name: install MySQL
-      yum:
-        name: "{{ item }}"
-        state: present
-      with_items:
-        - mysql-server
-        - mysql-devel
-        - MySQL-python
-    
-    - name: start MySQL
-      service:
-        name: mysqld
-        state: started
-        enabled: yes
-    
-    - name: set root password
-      mysql_user:
-        name: root
-        host: localhost
-        password: "{{ mysql_root_password }}"
-    
-    - name: create database
-      mysql_db:
-        name: redmine
-        state: present
-    
-    - name: grant database
-      mysql_user:
-        name: redmine
-        password: "{{ mysql_db_password }}"
-        priv: "redmine.*:ALL"
-        host: localhost
-        state: present
-EOF
-      #ansible-playbook playbook.yml -i hosts
-    SHELL
+    node.vm.provision :shell do |shell|
+      shell.path = "provision.sh"
+      shell.privileged = false
+    end
   end
   
   # Disable automatic box update checking. If you disable this, then
