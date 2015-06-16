@@ -20,13 +20,13 @@ cat ~/.ssh/id_rsa.pub | sshpass -p "vagrant" ssh -o StrictHostKeyChecking=no vag
 # install ansible
 sudo yum install -y ansible
 
-# configure ansible
+# configure host for ansible
 cat <<EOF > hosts
 [provision_dest]
 192.168.33.11
 EOF
 
-# configure MySQL
+# configure MySQL for ansible
 cat <<EOF > my.cnf.j2
 [client]
 user = root
@@ -44,6 +44,35 @@ cat <<EOF > playbook.yml
     mysql_db_user: redmine
     mysql_db_password: enimder
   tasks:
+    - name: install Development Tools
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "@Development Tools"
+    
+    # - name: download libyaml
+      # get_url:
+        # url: http://dl.fedoraproject.org/pub/epel/5/x86_64/libyaml-0.1.2-8.el5.x86_64.rpm
+        # dest: ~/libyaml-0.1.2-8.el5.x86_64.rpm
+
+    # - name: download libyaml-devel
+      # get_url:
+        # url: http://dl.fedoraproject.org/pub/epel/5/x86_64/libyaml-devel-0.1.2-8.el5.x86_64.rpm
+        # dest: ~/libyaml-devel-0.1.2-8.el5.x86_64.rpm
+
+    # - name: install yaml libraries
+      # command: "sudo yum localinstall -y --nogpgcheck libyaml-0.1.2-8.el5.x86_64.rpm libyaml-devel-0.1.2-8.el5.x86_64.rpm"
+
+    - name: install yaml libraries
+      yum:
+        name: "{{ item }}"
+        disable_gpg_check: yes 
+        state: present
+      with_items:
+        - http://dl.fedoraproject.org/pub/epel/5/x86_64/libyaml-0.1.2-8.el5.x86_64.rpm
+        - http://dl.fedoraproject.org/pub/epel/5/x86_64/libyaml-devel-0.1.2-8.el5.x86_64.rpm
+
     - name: install MySQL
       yum:
         name: "{{ item }}"
