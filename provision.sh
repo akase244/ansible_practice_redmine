@@ -35,6 +35,7 @@ EOF
 
 # create ansible playbook
 cat <<EOF > playbook.yml
+---
 - hosts: provision_dest
   sudo: yes
   vars: 
